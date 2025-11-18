@@ -35,3 +35,23 @@ exports.createCourrier = async (req, res) => {
     res.status(400).json({ message: "Erreur lors de la création", err });
   }
 };
+
+exports.updateCourrier = async (req, res) => {
+  try {
+    const data = await courrierService.update(req.params.id, req.body);
+    if (!data) return res.status(404).json({ message: "Courrier introuvable" });
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ message: "Erreur lors de la modification", err });
+  }
+};
+
+exports.deleteCourrier = async (req, res) => {
+  try {
+    const deleted = await courrierService.remove(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Courrier introuvable" });
+    res.json({ message: "Courrier supprimé" });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur lors de la suppression", err });
+  }
+};
