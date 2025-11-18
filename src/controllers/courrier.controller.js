@@ -21,7 +21,6 @@ exports.getCourrierById = async (req, res) => {
 
 exports.createCourrier = async (req, res) => {
   try {
-
     const data = await courrierService.create({
       origine: req.body.origine,
       objet: req.body.objet,
@@ -41,6 +40,7 @@ exports.createCourrier = async (req, res) => {
 exports.updateCourrier = async (req, res) => {
   try {
     const data = await courrierService.update(req.params.id, req.body);
+
     if (!data) return res.status(404).json({ message: "Courrier introuvable" });
     res.json(data);
   } catch (err) {

@@ -45,12 +45,29 @@ exports.create = async ({ origine, objet, date_signature, fichier_joint, typeId,
 };
 
 
-exports.update = (id, data) => {
+exports.update = async (id, data) => {
+  const updateData = { ...data };
+
+  
+  if (updateData.date_signature) {
+    updateData.date_signature = new Date(updateData.date_signature);
+  }
+
+  
+  if (updateData.typeId) {
+    updateData.type = { connect: { id: updateData.typeId } };
+    delete updateData.typeId; 
+  }
+
+
+  if (updateData.destUserId) delete updateData.destUserId;
+
   return prisma.courrier.update({
     where: { id },
-    data,
+    data: updateData,
   });
 };
+
 
 exports.remove = async (id) => {
   try {
