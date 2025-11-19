@@ -1,0 +1,21 @@
+meta {
+  name: create type-courriers
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:4000/api/type-courriers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "libelle": "string"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

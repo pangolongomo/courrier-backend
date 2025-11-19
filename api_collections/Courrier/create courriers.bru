@@ -1,0 +1,24 @@
+meta {
+  name: create courriers
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:4000/api/courriers
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  origine: 
+  objet: 
+  date_signature: 
+  fichier_joint: @file()
+  typeId: 
+  destUserId: 
+}
+
+settings {
+  encodeUrl: true
+}

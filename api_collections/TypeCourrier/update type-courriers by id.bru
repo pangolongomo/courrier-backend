@@ -1,0 +1,21 @@
+meta {
+  name: update type-courriers by id
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:4000/api/type-courriers/id
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "libelle": "string"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

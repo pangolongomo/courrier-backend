@@ -1,0 +1,26 @@
+meta {
+  name: register
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:4000/api/auth/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "string",
+    "password": "string",
+    "nom": "string",
+    "prenom": "string",
+    "telephone": "string",
+    "roleLibelle": "string"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

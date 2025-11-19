@@ -1,0 +1,26 @@
+meta {
+  name: create users
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:4000/api/users
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "nom": "string",
+    "prenom": "string",
+    "telephone": "string",
+    "email": "string",
+    "password": "string",
+    "roleLibelle": "string"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
