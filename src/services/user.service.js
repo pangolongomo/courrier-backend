@@ -79,18 +79,32 @@ exports.createNewUser = async (data) => {
 };
 
 exports.updateUserById = async (id, data) => {
-  // si password présent, hash it
+
   const updateData = { ...data };
+
+  // Password
   if (data.password) {
-    updateData.password = await bcrypt.hash(data.password, 10);
+    try {
+      updateData.password = await bcrypt.hash(data.password, 10);
+     
+    } catch (e) {
+      console.error("❌ Erreur hashage password :", e);
+    }
   }
 
-  // Si roleLibelle envoyé, convertir en roleId
+  // Role
   if (data.roleLibelle) {
     const role = await prisma.role.findUnique({ where: { libelle: data.roleLibelle } });
-    if (!role) throw new Error(`Role '${data.roleLibelle}' introuvable`);
+
+    if (!role) {
+      throw new Error(`Role '${data.roleLibelle}' introuvable`);
+    }
+
     updateData.role = { connect: { id: role.id } };
+    delete updateData.roleLibelle;
   }
+
+  
 
   try {
     const user = await prisma.user.update({
@@ -100,9 +114,11 @@ exports.updateUserById = async (id, data) => {
     });
     return user;
   } catch (err) {
+    console.error("❌ Erreur Prisma Update :", err);
     return null;
   }
 };
+
 
 exports.deleteUserById = async (id) => {
   try {
