@@ -1,9 +1,17 @@
 const courrierService = require("../services/courrier.service");
 
+const addPdfUrl = (courrier, req) => ({
+  ...courrier,
+  pdfUrl: courrier.fichier_joint
+    ? `${req.protocol}://${req.get('host')}/${courrier.fichier_joint.replace(/\\/g, '/')}`
+    : null,
+});
+
 exports.getCourriers = async (req, res) => {
   try {
     const data = await courrierService.findAll();
-    res.json(data);
+    const result = data.map(c => addPdfUrl(c, req));
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", err });
   }
@@ -13,11 +21,25 @@ exports.getCourrierById = async (req, res) => {
   try {
     const data = await courrierService.findById(req.params.id);
     if (!data) return res.status(404).json({ message: "Courrier introuvable" });
-    res.json(data);
+    res.json(addPdfUrl(data, req));
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", err });
   }
 };
+
+exports.getCourriersUser = async (req, res) => {
+  try {
+    const userId = req.user.userId; // récupéré depuis le token
+    const data = await courrierService.findByUser(userId);
+
+    const result = data.map(c => addPdfUrl(c, req));
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", err });
+  }
+};
+
 
 exports.createCourrier = async (req, res) => {
   try {
