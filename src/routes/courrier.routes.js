@@ -20,6 +20,50 @@
 
 /**
  * @openapi
+ * /courriers/my:
+ *   get:
+ *     tags: [Courrier]
+ *     summary: Récupère tous les courriers de l'utilisateur connecté
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des courriers de l'utilisateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id: { type: string }
+ *                   numero_courrier: { type: string }
+ *                   origine: { type: string }
+ *                   objet: { type: string }
+ *                   date_signature: { type: string, format: date }
+ *                   fichier_joint: { type: string }
+ *                   pdfUrl: { type: string }
+ *                   type:
+ *                     type: object
+ *                     properties:
+ *                       id: { type: string }
+ *                       libelle: { type: string }
+ *                   creator:
+ *                     type: object
+ *                     properties:
+ *                       id: { type: string }
+ *                       nom: { type: string }
+ *                   reponses:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id: { type: string }
+ *                         fichier_joint: { type: string }
+ */
+
+/**
+ * @openapi
  * /courriers/{id}:
  *   get:
  *     tags: [Courrier]
@@ -123,19 +167,17 @@ const uploadMiddleware = require("../middlewares/upload.middleware");
 
 const router = express.Router();
 
-// Appliquer le middleware d'authentification à toutes les routes
 router.use(authMiddleware);
 
 router.get("/", courrierController.getCourriers);
+router.get("/my", courrierController.getCourriersUser);
 router.get("/:id", courrierController.getCourrierById);
 
-// Création avec upload PDF
 router.post("/", uploadMiddleware.single("fichier_joint"), (req, res) => {
-  if (req.file) req.body.fichier_joint = req.file.path; // Ajout du path du PDF
+  if (req.file) req.body.fichier_joint = req.file.path; //
   return courrierController.createCourrier(req, res);
 });
 
-// Mise à jour avec upload PDF
 router.put("/:id", uploadMiddleware.single("fichier_joint"), (req, res) => {
   if (req.file) req.body.fichier_joint = req.file.path;
   return courrierController.updateCourrier(req, res);

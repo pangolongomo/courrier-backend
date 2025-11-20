@@ -37,6 +37,7 @@ model User {
 
   notifications     Notification[]
   courriersCreated  Courrier[] @relation("Creator")
+  courriersDestines Courrier[] @relation("Destinataire")
   reponses          ReponseCourrier[] @relation("Responder")
 
   createdAt DateTime @default(now())
@@ -54,6 +55,7 @@ model TypeCourrier {
 
 model Courrier {
   id                String   @id @default(uuid())
+  numero_courrier   String   @unique
   origine           String?
   objet             String
   date_signature    DateTime?
@@ -62,6 +64,9 @@ model Courrier {
   // Type
   typeId            String?
   type              TypeCourrier? @relation(fields: [typeId], references: [id])
+
+  destUserId        String
+  destinataire      User     @relation("Destinataire", fields: [destUserId], references: [id])
 
   // Creator (receptionniste)
   creatorId         String
