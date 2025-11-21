@@ -53,13 +53,25 @@ model TypeCourrier {
   courriers Courrier[]
 }
 
+model Origine {
+  id        String     @id @default(uuid())
+  libelle   String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  courriers Courrier[]
+}
+
+
 model Courrier {
   id                String   @id @default(uuid())
   numero_courrier   String   @unique
-  origine           String?
   objet             String
   date_signature    DateTime?
   fichier_joint     String?
+
+  origineId         String?
+  origine           Origine? @relation(fields: [origineId], references: [id])
 
   // Type
   typeId            String?

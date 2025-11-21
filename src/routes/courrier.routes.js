@@ -96,7 +96,12 @@
  *             type: object
  *             required: [origine, objet, date_signature, fichier_joint, typeId, destUserId]
  *             properties:
- *               origine: { type: string }
+ *               origineId:
+ *                 type: string
+ *                 description: ID d'une origine déjà existante
+ *               origineText:
+ *                 type: string
+ *                 description: Texte d'une nouvelle origine s'il n'existe pas
  *               objet: { type: string }
  *               date_signature: { type: string, format: date }
  *               fichier_joint:
