@@ -50,7 +50,7 @@ exports.create = async ({ origineId, origineText, objet, date_signature, fichier
 
     if (!destUser) throw new Error("Le destinataire n'existe pas");
 
-    const rolesAutorises = ["ministre", "dircab", "conseiller"];
+    const rolesAutorises = ["ministre", "dircab", "conseiller", "secab"];
     if (!rolesAutorises.includes(destUser.role.libelle)) {
       throw new Error(`Le destinataire doit être Ministre, Dircab ou Conseiller`);
     }
