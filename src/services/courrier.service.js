@@ -8,6 +8,10 @@ exports.findAll = () => {
       reponses: true,
       origine: true,
       destinataire: true,
+      annotations: {
+        include: { auteur: true },
+        orderBy: { createdAt: "desc" }
+      }
     },
     orderBy: { createdAt: "desc" },
   });
@@ -22,6 +26,10 @@ exports.findById = (id) => {
       reponses: true,
       origine: true,
       destinataire: true,
+      annotations: {
+        include: { auteur: true },
+        orderBy: { createdAt: "desc" }
+      }
     },
   });
 };
@@ -35,6 +43,10 @@ exports.findByUser = (userId) => {
       reponses: true,
       origine: true,
       destinataire: true,
+      annotations: {
+        include: { auteur: true },
+        orderBy: { createdAt: "desc" }
+      }
     },
     orderBy: { createdAt: "desc" },
   });
