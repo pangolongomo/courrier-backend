@@ -39,6 +39,7 @@ model User {
   courriersCreated  Courrier[] @relation("Creator")
   courriersDestines Courrier[] @relation("Destinataire")
   reponses          ReponseCourrier[] @relation("Responder")
+  annotations       Annotation[] @relation("Annotateur")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -85,10 +86,28 @@ model Courrier {
   creator           User     @relation("Creator", fields: [creatorId], references: [id])
 
   reponses          ReponseCourrier[]
+  annotations       Annotation[]
+
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
+
+model Annotation {
+  id          String   @id @default(uuid())
+  contenu     String
+  priorite    String  
+
+  courrierId  String
+  courrier    Courrier @relation(fields: [courrierId], references: [id])
+
+  auteurId    String
+  auteur      User     @relation("Annotateur", fields: [auteurId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 
 model ReponseCourrier {
   id             String   @id @default(uuid())
