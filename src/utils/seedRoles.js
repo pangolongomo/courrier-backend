@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function seedRoles() {
-  const roles = ['receptionniste', 'conseiller', 'dircab', 'ministre', 'admin'];
+  const roles = ['receptionniste', 'conseiller', 'dircab', 'ministre', 'secab', 'admin'];
 
   for (const libelle of roles) {
     const exists = await prisma.role.findUnique({ where: { libelle } });

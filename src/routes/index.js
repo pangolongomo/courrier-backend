@@ -6,6 +6,7 @@ const courrierRoutes = require("./courrier.routes");
 const reponseCourrierRoutes = require("./reponseCourrier.routes");
 const roleRoutes = require("./role.routes");
 const notificationRoutes = require("./notification.routes");
+const annotationRoutes = require("./annotation.routes");
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use("/courriers", courrierRoutes);
 router.use("/reponses", reponseCourrierRoutes);
 router.use("/roles", roleRoutes);
 router.use("/notifications", notificationRoutes);
+router.use("/annotations", annotationRoutes);
 
 module.exports = router;
