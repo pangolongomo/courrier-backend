@@ -1,9 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-/**
- * Mark a courrier as read by a user
- */
+
 exports.markAsRead = async ({ courrierId, userId }) => {
   const existing = await prisma.courrierLu.findUnique({
     where: { courrierId_userId: { courrierId, userId } },
@@ -21,9 +19,7 @@ exports.markAsRead = async ({ courrierId, userId }) => {
   }
 };
 
-/**
- * Get all read statuses for a courrier
- */
+
 exports.getAllReadsForCourrier = async (courrierId) => {
   return prisma.courrierLu.findMany({
     where: { courrierId },
