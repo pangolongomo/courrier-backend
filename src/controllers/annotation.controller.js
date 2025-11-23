@@ -13,11 +13,6 @@ exports.createAnnotation = async (req, res) => {
     const courrier = await courrierService.findById(courrierId);
     if (!courrier) return res.status(404).json({ message: "Courrier introuvable" });
 
-    // Vérification que l'utilisateur envoyé est bien le destinataire
-    if (courrier.destUserId !== userId) {
-      return res.status(403).json({ message: "Vous n'êtes pas destinataire de ce courrier" });
-    }
-
     const annotation = await annotationService.create({
       contenu,
       priorite,
