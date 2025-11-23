@@ -8,38 +8,37 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-
 model Role {
-  id        String  @id @default(uuid())
-  libelle   String  @unique
+  id        String   @id @default(uuid())
+  libelle   String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users     User[]
+  users User[]
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   nom       String
   prenom    String?
   telephone String?
-  email     String   @unique
+  email     String  @unique
   password  String
 
-  roleId    String
-  role      Role     @relation(fields: [roleId], references: [id])
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
 
   notifications     Notification[]
-  courriersCreated  Courrier[] @relation("Creator")
-  courriersDestines Courrier[] @relation("Destinataire")
+  courriersCreated  Courrier[]        @relation("Creator")
+  courriersDestines Courrier[]        @relation("Destinataire")
   reponses          ReponseCourrier[] @relation("Responder")
-  annotations       Annotation[] @relation("Annotateur")
+  annotations       Annotation[]      @relation("Annotateur")
+  courriersLu       CourrierLu[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -54,84 +53,108 @@ model TypeCourrier {
   courriers Courrier[]
 }
 
+model CourrierLu {
+  id         String   @id @default(uuid())
+  courrierId String
+  courrier   Courrier @relation(fields: [courrierId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  lu        Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courrierId, userId]) // Chaque utilisateur ne peut avoir qu'une entrée par courrier
+}
+
 model Origine {
-  id        String     @id @default(uuid())
-  libelle   String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id        String   @id @default(uuid())
+  libelle   String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   courriers Courrier[]
 }
 
-
 model Courrier {
-  id                String   @id @default(uuid())
-  numero_courrier   String   @unique
-  objet             String
-  date_signature    DateTime?
-  fichier_joint     String?
+  id              String    @id @default(uuid())
+  numero_courrier String    @unique
+  objet           String
+  date_signature  DateTime?
+  fichier_joint   String?
 
-  origineId         String?
-  origine           Origine? @relation(fields: [origineId], references: [id])
+  origineId String?
+  origine   Origine? @relation(fields: [origineId], references: [id])
 
   // Type
-  typeId            String?
-  type              TypeCourrier? @relation(fields: [typeId], references: [id])
+  typeId String?
+  type   TypeCourrier? @relation(fields: [typeId], references: [id])
 
-  destUserId        String
-  destinataire      User     @relation("Destinataire", fields: [destUserId], references: [id])
+  destUserId   String
+  destinataire User   @relation("Destinataire", fields: [destUserId], references: [id])
 
   // Creator (receptionniste)
-  creatorId         String
-  creator           User     @relation("Creator", fields: [creatorId], references: [id])
+  creatorId String
+  creator   User   @relation("Creator", fields: [creatorId], references: [id])
 
-  reponses          ReponseCourrier[]
-  annotations       Annotation[]
+  statutId String?
+  statut   StatutCourrier? @relation(fields: [statutId], references: [id])
 
+  reponses    ReponseCourrier[]
+  annotations Annotation[]
+  courriersLu CourrierLu[]
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StatutCourrier {
+  id        String   @id @default(uuid())
+  libelle   String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courriers Courrier[]
 }
 
 model Annotation {
-  id          String   @id @default(uuid())
-  contenu     String
-  priorite    String  
+  id       String @id @default(uuid())
+  contenu  String
+  priorite String
 
-  courrierId  String
-  courrier    Courrier @relation(fields: [courrierId], references: [id])
+  courrierId String
+  courrier   Courrier @relation(fields: [courrierId], references: [id])
 
-  auteurId    String
-  auteur      User     @relation("Annotateur", fields: [auteurId], references: [id])
+  auteurId String
+  auteur   User   @relation("Annotateur", fields: [auteurId], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-
 model ReponseCourrier {
-  id             String   @id @default(uuid())
+  id             String    @id @default(uuid())
   date_signature DateTime?
   fichier_joint  String?
 
-  courrierId     String
-  courrier Courrier @relation(fields: [courrierId], references: [id])
+  courrierId String
+  courrier   Courrier @relation(fields: [courrierId], references: [id])
 
+  responderId String
+  responder   User   @relation("Responder", fields: [responderId], references: [id])
 
-  responderId    String
-  responder      User     @relation("Responder", fields: [responderId], references: [id])
-
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  message   String
-  statut    String   @default("unread")
+  id      String @id @default(uuid())
+  message String
+  statut  String @default("unread")
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

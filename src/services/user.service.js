@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const prisma = require("../prisma");
 
-// liste tous les utilisateurs (sans mot de passe)
+
 exports.findAllUsers = async () => {
   return prisma.user.findMany({
     select: {
@@ -36,6 +36,27 @@ exports.findUserById = async (id) => {
     }
   });
 };
+
+exports.findUsersByRoles = async (roles = ["ministre", "dircab", "conseiller", "secab"]) => {
+  return prisma.user.findMany({
+    where: {
+      role: {
+        libelle: { in: roles }
+      }
+    },
+    select: {
+      id: true,
+      nom: true,
+      prenom: true,
+      telephone: true,
+      email: true,
+      role: { select: { libelle: true } },
+      createdAt: true,
+      updatedAt: true
+    }
+  });
+};
+
 
 exports.createNewUser = async (data) => {
   // data: { nom, prenom, telephone, email, password, roleId OR roleLibelle }
@@ -82,17 +103,17 @@ exports.updateUserById = async (id, data) => {
 
   const updateData = { ...data };
 
-  // Password
+  
   if (data.password) {
     try {
       updateData.password = await bcrypt.hash(data.password, 10);
      
     } catch (e) {
-      console.error("❌ Erreur hashage password :", e);
+      console.error("Erreur hashage password :", e);
     }
   }
 
-  // Role
+  
   if (data.roleLibelle) {
     const role = await prisma.role.findUnique({ where: { libelle: data.roleLibelle } });
 
@@ -114,7 +135,7 @@ exports.updateUserById = async (id, data) => {
     });
     return user;
   } catch (err) {
-    console.error("❌ Erreur Prisma Update :", err);
+    console.error("Erreur Prisma Update :", err);
     return null;
   }
 };

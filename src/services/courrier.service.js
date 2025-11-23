@@ -1,7 +1,7 @@
 const prisma = require("../prisma");
 
-exports.findAll = () => {
-  return prisma.courrier.findMany({
+exports.findAll = async (userId) => {
+  const courriers = await prisma.courrier.findMany({
     include: {
       type: true,
       creator: true,
@@ -11,14 +11,22 @@ exports.findAll = () => {
       annotations: {
         include: { auteur: true },
         orderBy: { createdAt: "desc" }
-      }
+      },
+      courriersLu: {
+        where: { userId }, // on récupère juste l'état de lecture pour cet utilisateur
+      },
     },
     orderBy: { createdAt: "desc" },
   });
+
+  return courriers.map(c => ({
+    ...c,
+    estLu: c.courriersLu.length > 0 ? c.courriersLu[0].lu : false
+  }));
 };
 
-exports.findById = (id) => {
-  return prisma.courrier.findUnique({
+exports.findById = async (id, userId) => {
+  const courrier = await prisma.courrier.findUnique({
     where: { id },
     include: {
       type: true,
@@ -29,13 +37,23 @@ exports.findById = (id) => {
       annotations: {
         include: { auteur: true },
         orderBy: { createdAt: "desc" }
-      }
+      },
+      courriersLu: {
+        where: { userId },
+      },
     },
   });
+
+  if (!courrier) return null;
+
+  return {
+    ...courrier,
+    estLu: courrier.courriersLu.length > 0 ? courrier.courriersLu[0].lu : false
+  };
 };
 
-exports.findByUser = (userId) => {
-  return prisma.courrier.findMany({
+exports.findByUser = async (userId) => {
+  const courriers = await prisma.courrier.findMany({
     where: { destinataire: { id: userId } },
     include: {
       type: true,
@@ -46,10 +64,18 @@ exports.findByUser = (userId) => {
       annotations: {
         include: { auteur: true },
         orderBy: { createdAt: "desc" }
-      }
+      },
+      courriersLu: {
+        where: { userId },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
+
+  return courriers.map(c => ({
+    ...c,
+    estLu: c.courriersLu.length > 0 ? c.courriersLu[0].lu : false
+  }));
 };
 
 exports.create = async ({ origineId, origineText, objet, date_signature, fichier_joint, typeId, destUserId, creatorId }) => {
@@ -79,6 +105,12 @@ exports.create = async ({ origineId, origineText, objet, date_signature, fichier
 
     if (!origineIdToUse) throw new Error("Vous devez choisir une origine ou en ajouter une.");
 
+    const statutInitial = await prisma.statutCourrier.findUnique({
+      where: { libelle: 'Non assigné' }
+    });
+
+    if (!statutInitial) throw new Error("Statut 'Non assigné' manquant dans la base.");
+
     // Génération numéro_courrier sécurisé
     const year = new Date().getFullYear();
     const lastCourrier = await prisma.courrier.findFirst({
@@ -105,7 +137,8 @@ exports.create = async ({ origineId, origineText, objet, date_signature, fichier
         fichier_joint,
         type: { connect: { id: typeId } },
         creator: { connect: { id: creatorId } },
-        destinataire: { connect: { id: destUserId } }
+        destinataire: { connect: { id: destUserId } },
+        statut: { connect: { id: statutInitial.id } }
       },
       include: { origine: true }
     });
@@ -126,30 +159,92 @@ exports.create = async ({ origineId, origineText, objet, date_signature, fichier
   }
 };
 
-
 exports.update = async (id, data) => {
-  const updateData = { ...data };
+  try {
+
+    const updateData = { ...data };
+
+    if (updateData.date_signature) {
+      updateData.date_signature = new Date(updateData.date_signature);
+    }
 
   
-  if (updateData.date_signature) {
-    updateData.date_signature = new Date(updateData.date_signature);
+    if (updateData.typeId) {
+      updateData.type = { connect: { id: updateData.typeId } };
+      delete updateData.typeId;
+    }
+
+    
+    if (updateData.origineText) {
+
+      const newOrigine = await prisma.origine.create({
+        data: { libelle: updateData.origineText },
+      });
+
+      updateData.origine = { connect: { id: newOrigine.id } };
+      delete updateData.origineText;
+      delete updateData.origineId;
+
+    } else if (updateData.origineId) {
+      updateData.origine = { connect: { id: updateData.origineId } };
+      delete updateData.origineId;
+    }
+
+    
+    if (updateData.statutLibelle) {
+      const statut = await prisma.statutCourrier.findUnique({
+        where: { libelle: updateData.statutLibelle },
+      });
+
+      if (!statut) throw new Error(`Statut '${updateData.statutLibelle}' not found`);
+
+      updateData.statut = { connect: { id: statut.id } };
+      delete updateData.statutLibelle;
+    }
+
+
+    
+    if (updateData.destUserId) {
+
+      const newDest = await prisma.user.findUnique({
+        where: { id: updateData.destUserId },
+        include: { role: true }
+      });
+
+      if (!newDest) throw new Error("Le destinataire n'existe pas");
+
+      const rolesAutorises = ["ministre", "dircab", "conseiller", "secab"];
+      if (!rolesAutorises.includes(newDest.role.libelle)) {
+        throw new Error(`Le destinataire doit être Ministre, Dircab ou Conseiller`);
+      }
+
+      updateData.destinataire = { connect: { id: updateData.destUserId } };
+      delete updateData.destUserId;
+    }
+
+
+    const result = await prisma.courrier.update({
+      where: { id },
+      data: updateData,
+      include: { origine: true, type: true, destinataire: true },
+    });
+
+
+    if (data.destUserId) {
+      await prisma.notification.create({
+        data: {
+          message: `Vous venez de recevoir un courrier modifié`,
+          user: { connect: { id: data.destUserId } },
+        },
+      });
+    }
+
+    return result;
+
+  } catch (err) {
+    throw err;
   }
-
-  
-  if (updateData.typeId) {
-    updateData.type = { connect: { id: updateData.typeId } };
-    delete updateData.typeId; 
-  }
-
-
-  if (updateData.destUserId) delete updateData.destUserId;
-
-  return prisma.courrier.update({
-    where: { id },
-    data: updateData,
-  });
 };
-
 
 exports.remove = async (id) => {
   try {

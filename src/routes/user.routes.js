@@ -41,6 +41,19 @@
 
 /**
  * @openapi
+ * /users/roles-authorized:
+ *   get:
+ *     tags: [Users]
+ *     summary: Liste tous les utilisateurs dont le rôle est "ministre", "dircab", "conseiller" ou "secab"
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des utilisateurs filtrés par rôle
+ */
+
+/**
+ * @openapi
  * /users:
  *   post:
  *     tags: [Users]
@@ -137,6 +150,7 @@ const router = express.Router();
 
 router.get("/", authMiddleware, userController.getUsers);
 router.get("/:id", authMiddleware, userController.getUserById);
+router.get("/roles-authorized", authMiddleware, userController.getUsersWithRoles);
 router.post("/", authMiddleware, userController.createUser);
 router.put("/:id", authMiddleware, userController.updateUser);
 router.delete("/:id", authMiddleware, userController.deleteUser);

@@ -20,6 +20,16 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+exports.getUsersWithRoles = async (req, res) => {
+  try {
+    const users = await userService.findUsersByRoles();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+
+
 exports.createUser = async (req, res) => {
   try {
     const data = req.body;

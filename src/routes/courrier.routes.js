@@ -142,6 +142,7 @@
  *                 format: binary
  *               typeId: { type: string }
  *               destUserId: { type: string }
+ *               statutLibelle: { type: string }
  *     responses:
  *       200: { description: Courrier mis à jour }
  *       404: { description: Introuvable }
