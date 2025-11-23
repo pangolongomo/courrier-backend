@@ -28,7 +28,7 @@
 
 /**
  * @swagger
- * /api/origines:
+ * /origines:
  *   get:
  *     summary: Récupérer la liste des origines
  *     tags: [Origines]
@@ -47,7 +47,7 @@
 
 /**
  * @swagger
- * /api/origines:
+ * /origines:
  *   post:
  *     summary: Créer une nouvelle origine
  *     tags: [Origines]
