@@ -11,7 +11,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 
 /**
  * @swagger
- * /api/annotations:
+ * /annotations:
  *   post:
  *     summary: Ajouter une annotation à un courrier (par le destinataire uniquement)
  *     tags: [Annotations]
@@ -37,6 +37,9 @@ const authMiddleware = require("../middlewares/auth.middleware");
  *               courrierId:
  *                 type: string
  *                 format: uuid
+ *               userId:
+ *                 type: string
+ *                 format: uuid
  *     responses:
  *       201:
  *         description: Annotation créée avec succès
@@ -48,7 +51,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 
 /**
  * @swagger
- * /api/annotations/{courrierId}:
+ * /annotations/{courrierId}:
  *   get:
  *     summary: Récupérer les annotations d'un courrier
  *     tags: [Annotations]
