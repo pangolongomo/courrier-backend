@@ -126,29 +126,81 @@ exports.create = async ({ origineId, origineText, objet, date_signature, fichier
   }
 };
 
-
 exports.update = async (id, data) => {
-  const updateData = { ...data };
+  try {
+
+    const updateData = { ...data };
+
+    if (updateData.date_signature) {
+      updateData.date_signature = new Date(updateData.date_signature);
+    }
 
   
-  if (updateData.date_signature) {
-    updateData.date_signature = new Date(updateData.date_signature);
+    if (updateData.typeId) {
+      updateData.type = { connect: { id: updateData.typeId } };
+      delete updateData.typeId;
+    }
+
+    
+    if (updateData.origineText) {
+
+      const newOrigine = await prisma.origine.create({
+        data: { libelle: updateData.origineText },
+      });
+
+      updateData.origine = { connect: { id: newOrigine.id } };
+      delete updateData.origineText;
+      delete updateData.origineId;
+
+    } else if (updateData.origineId) {
+      updateData.origine = { connect: { id: updateData.origineId } };
+      delete updateData.origineId;
+    }
+
+    
+    if (updateData.destUserId) {
+
+      const newDest = await prisma.user.findUnique({
+        where: { id: updateData.destUserId },
+        include: { role: true }
+      });
+
+      if (!newDest) throw new Error("Le destinataire n'existe pas");
+
+      const rolesAutorises = ["ministre", "dircab", "conseiller", "secab"];
+      if (!rolesAutorises.includes(newDest.role.libelle)) {
+        throw new Error(`Le destinataire doit être Ministre, Dircab ou Conseiller`);
+      }
+
+      updateData.destinataire = { connect: { id: updateData.destUserId } };
+      delete updateData.destUserId;
+    }
+
+
+    const result = await prisma.courrier.update({
+      where: { id },
+      data: updateData,
+      include: { origine: true, type: true, destinataire: true },
+    });
+
+
+    if (data.destUserId) {
+      await prisma.notification.create({
+        data: {
+          message: `Vous venez de recevoir un courrier modifié`,
+          user: { connect: { id: data.destUserId } },
+        },
+      });
+    }
+
+    return result;
+
+  } catch (err) {
+    throw err;
   }
-
-  
-  if (updateData.typeId) {
-    updateData.type = { connect: { id: updateData.typeId } };
-    delete updateData.typeId; 
-  }
-
-
-  if (updateData.destUserId) delete updateData.destUserId;
-
-  return prisma.courrier.update({
-    where: { id },
-    data: updateData,
-  });
 };
+
+
 
 
 exports.remove = async (id) => {
