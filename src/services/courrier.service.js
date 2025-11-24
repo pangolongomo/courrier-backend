@@ -8,6 +8,7 @@ exports.findAll = async (userId) => {
       reponses: true,
       origine: true,
       destinataire: true,
+      statut: true,
       annotations: {
         include: { auteur: true },
         orderBy: { createdAt: "desc" }
@@ -34,6 +35,7 @@ exports.findById = async (id, userId) => {
       reponses: true,
       origine: true,
       destinataire: true,
+      statut: true,
       annotations: {
         include: { auteur: true },
         orderBy: { createdAt: "desc" }
@@ -61,6 +63,7 @@ exports.findByUser = async (userId) => {
       reponses: true,
       origine: true,
       destinataire: true,
+      statut: true,
       annotations: {
         include: { auteur: true },
         orderBy: { createdAt: "desc" }
