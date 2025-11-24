@@ -149,8 +149,8 @@ const authMiddleware = require("../middlewares/auth.middleware");
 const router = express.Router();
 
 router.get("/", authMiddleware, userController.getUsers);
-router.get("/:id", authMiddleware, userController.getUserById);
 router.get("/roles-authorized", authMiddleware, userController.getUsersWithRoles);
+router.get("/:id", authMiddleware, userController.getUserById);
 router.post("/", authMiddleware, userController.createUser);
 router.put("/:id", authMiddleware, userController.updateUser);
 router.delete("/:id", authMiddleware, userController.deleteUser);
