@@ -148,7 +148,7 @@ exports.create = async ({ origineId, origineText, objet, date_signature, fichier
       data: {
         message: `Vous avez reçu un courrier provenant de ${newCourrier.origine.libelle} pour l'objet: ${objet}`,
         user: { connect: { id: destUserId } },
-        courrier: { connect: { id } }
+        courrier: { connect: { id: newCourrier.id } }
       },
     });
 
