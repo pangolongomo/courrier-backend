@@ -101,9 +101,10 @@ model Courrier {
   statutId String?
   statut   StatutCourrier? @relation(fields: [statutId], references: [id])
 
-  reponses    ReponseCourrier[]
-  annotations Annotation[]
-  courriersLu CourrierLu[]
+  reponses      ReponseCourrier[]
+  annotations   Annotation[]
+  courriersLu   CourrierLu[]
+  notifications Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -155,6 +156,9 @@ model Notification {
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
+
+  courrierId String?
+  courrier   Courrier? @relation(fields: [courrierId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
