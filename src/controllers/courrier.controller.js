@@ -9,7 +9,8 @@ const addPdfUrl = (courrier, req) => ({
 
 exports.getCourriers = async (req, res) => {
   try {
-    const data = await courrierService.findAll();
+    const userId = req.user.userId;
+    const data = await courrierService.findAll(userId);
     const result = data.map(c => addPdfUrl(c, req));
     res.json(result);
   } catch (err) {
@@ -19,7 +20,8 @@ exports.getCourriers = async (req, res) => {
 
 exports.getCourrierById = async (req, res) => {
   try {
-    const data = await courrierService.findById(req.params.id);
+    const userId = req.user.userId;
+    const data = await courrierService.findById(req.params.id, userId);
     if (!data) return res.status(404).json({ message: "Courrier introuvable" });
     res.json(addPdfUrl(data, req));
   } catch (err) {

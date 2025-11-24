@@ -21,8 +21,34 @@ exports.markAsRead = async ({ courrierId, userId }) => {
 
 
 exports.getAllReadsForCourrier = async (courrierId) => {
-  return prisma.courrierLu.findMany({
-    where: { courrierId },
-    include: { user: true },
+  // 1. Récupérer tous les utilisateurs
+  const allUsers = await prisma.user.findMany({
+    select: {
+      id: true,
+      nom: true,
+      prenom: true,
+      email: true,
+    },
   });
+
+  // 2. Récupérer les lectures existantes pour ce courrier
+  const reads = await prisma.courrierLu.findMany({
+    where: { courrierId },
+    select: {
+      userId: true,
+      lu: true,
+    },
+  });
+
+  // 3. Fusionner les deux pour retourner lu: false si pas encore lu
+  const result = allUsers.map(user => {
+    const readEntry = reads.find(r => r.userId === user.id);
+    return {
+      ...user,
+      lu: readEntry ? readEntry.lu : false,
+    };
+  });
+
+  return result;
 };
+
