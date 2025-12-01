@@ -26,12 +26,14 @@ exports.createReponse = async (req, res) => {
     const date_signature = req.body.date_signature
       ? new Date(req.body.date_signature)
       : undefined;
+    const objet = req.body.objet;
 
     const data = await reponseService.create({
       date_signature,
       fichier_joint,
       courrierId: req.body.courrierId,
       responderId: req.user.userId,
+      objet,
     });
 
     res.status(201).json(data);

@@ -20,12 +20,13 @@ exports.findById = (id) => {
   });
 };
 
-exports.create = async ({ date_signature, fichier_joint, courrierId, responderId }) => {
+exports.create = async ({ date_signature, fichier_joint, courrierId, responderId, objet }) => {
   // Créer la réponse
   const reponse = await prisma.reponseCourrier.create({
     data: {
       date_signature,
       fichier_joint,
+      objet,
       courrier: { connect: { id: courrierId } },
       responder: { connect: { id: responderId } },
     },
