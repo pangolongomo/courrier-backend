@@ -100,6 +100,67 @@
 
 /**
  * @openapi
+ * /courriers/my/paginated:
+ *   get:
+ *     tags: [Courrier]
+ *     summary: Récupère les courriers paginés de l'utilisateur connecté
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         description: Numéro de page (1-based)
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - name: limit
+ *         in: query
+ *         description: Nombre d'éléments par page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: Liste paginée des courriers de l'utilisateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 page:
+ *                   type: integer
+ *                 limit:
+ *                   type: integer
+ *                 total:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
+ *                 rows:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id: { type: string }
+ *                       numero_courrier: { type: string }
+ *                       origine: { type: string }
+ *                       objet: { type: string }
+ *                       description: { type: string }
+ *                       date_signature: { type: string, format: date }
+ *                       fichier_joint: { type: string }
+ *                       pdfUrl: { type: string }
+ *                       estLu: { type: boolean }
+ *                       createdAt: { type: string, format: date-time }
+ *       401:
+ *         description: Non authentifié / token invalide
+ *       500:
+ *         description: Erreur serveur
+ */
+
+
+/**
+ * @openapi
  * /courriers/{id}:
  *   get:
  *     tags: [Courrier]
