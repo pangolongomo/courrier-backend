@@ -260,3 +260,47 @@ exports.remove = async (id) => {
     return false;
   }
 };
+
+exports.findAllPaginated = async (userId, page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+
+  // Total
+  const total = await prisma.courrier.count();
+
+  // Données paginées
+  const courriers = await prisma.courrier.findMany({
+    skip,
+    take: limit,
+    include: {
+      type: true,
+      creator: true,
+      reponses: true,
+      origine: true,
+      destinataire: true,
+      statut: true,
+      annotations: {
+        include: { auteur: true },
+        orderBy: { createdAt: "desc" }
+      },
+      courriersLu: {
+        where: { userId },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Ajout champ estLu
+  const rows = courriers.map(c => ({
+    ...c,
+    estLu: c.courriersLu.length > 0 ? c.courriersLu[0].lu : false
+  }));
+
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+    rows
+  };
+};
+
