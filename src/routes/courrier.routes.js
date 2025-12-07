@@ -169,7 +169,7 @@
 const express = require("express");
 const courrierController = require("../controllers/courrier.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
-const uploadMiddleware = require("../middlewares/upload.middleware");
+const upload = require("../middlewares/upload.middleware");
 
 const router = express.Router();
 
@@ -179,15 +179,9 @@ router.get("/", courrierController.getCourriers);
 router.get("/my", courrierController.getCourriersUser);
 router.get("/:id", courrierController.getCourrierById);
 
-router.post("/", uploadMiddleware.single("fichier_joint"), (req, res) => {
-  if (req.file) req.body.fichier_joint = req.file.path; //
-  return courrierController.createCourrier(req, res);
-});
+router.post("/", upload.single("fichier_joint"), courrierController.createCourrier);
 
-router.put("/:id", uploadMiddleware.single("fichier_joint"), (req, res) => {
-  if (req.file) req.body.fichier_joint = req.file.path;
-  return courrierController.updateCourrier(req, res);
-});
+router.put("/:id", upload.single("fichier_joint"), courrierController.updateCourrier);
 
 router.delete("/:id", courrierController.deleteCourrier);
 

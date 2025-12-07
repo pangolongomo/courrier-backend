@@ -83,6 +83,7 @@ model Courrier {
   objet           String
   date_signature  DateTime?
   fichier_joint   String?
+  s3_key          String?
 
   origineId String?
   origine   Origine? @relation(fields: [origineId], references: [id])
@@ -138,7 +139,7 @@ model ReponseCourrier {
   id             String    @id @default(uuid())
   date_signature DateTime?
   fichier_joint  String?
-  objet String?
+  objet          String?
 
   courrierId String
   courrier   Courrier @relation(fields: [courrierId], references: [id])
