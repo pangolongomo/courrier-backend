@@ -85,6 +85,7 @@ exports.create = async ({
   origineId,
   origineText,
   objet,
+  description,
   date_signature,
   fichier_joint,
   s3_key,
@@ -150,6 +151,7 @@ exports.create = async ({
         numero_courrier,
         origine: { connect: { id: origineIdToUse } },
         objet,
+        description,
         date_signature: date_signature ? new Date(date_signature) : null,
         fichier_joint,
         s3_key,
@@ -264,4 +266,92 @@ exports.remove = async (id) => {
   } catch (err) {
     return false;
   }
+};
+
+exports.findAllPaginated = async (userId, page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+
+  // Total
+  const total = await prisma.courrier.count();
+
+  // Données paginées
+  const courriers = await prisma.courrier.findMany({
+    skip,
+    take: limit,
+    include: {
+      type: true,
+      creator: true,
+      reponses: true,
+      origine: true,
+      destinataire: true,
+      statut: true,
+      annotations: {
+        include: { auteur: true },
+        orderBy: { createdAt: "desc" },
+      },
+      courriersLu: {
+        where: { userId },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Ajout champ estLu
+  const rows = courriers.map((c) => ({
+    ...c,
+    estLu: c.courriersLu.length > 0 ? c.courriersLu[0].lu : false,
+  }));
+
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+    rows,
+  };
+};
+
+exports.findByUserPaginated = async (userId, page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+
+  // TOTAL des courriers destinés à cet user
+  const total = await prisma.courrier.count({
+    where: { destinataire: { id: userId } },
+  });
+
+  // DONNÉES paginées
+  const courriers = await prisma.courrier.findMany({
+    where: { destinataire: { id: userId } },
+    skip,
+    take: limit,
+    include: {
+      type: true,
+      creator: true,
+      reponses: true,
+      origine: true,
+      destinataire: true,
+      statut: true,
+      annotations: {
+        include: { auteur: true },
+        orderBy: { createdAt: "desc" },
+      },
+      courriersLu: {
+        where: { userId },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const rows = courriers.map((c) => ({
+    ...c,
+    estLu: c.courriersLu.length > 0 ? c.courriersLu[0].lu : false,
+  }));
+
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+    rows,
+  };
 };

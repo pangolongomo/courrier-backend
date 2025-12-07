@@ -81,6 +81,7 @@ model Courrier {
   id              String    @id @default(uuid())
   numero_courrier String    @unique
   objet           String
+  description     String?
   date_signature  DateTime?
   fichier_joint   String?
   s3_key          String?

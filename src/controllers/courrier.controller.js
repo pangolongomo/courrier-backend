@@ -54,6 +54,7 @@ exports.createCourrier = async (req, res) => {
       origineId: req.body.origineId,
       origineText: req.body.origineText,
       objet: req.body.objet,
+      description: req.body.description,
       date_signature: req.body.date_signature,
       fichier_joint: result?.url,
       s3_key: result?.key,
@@ -115,3 +116,53 @@ exports.deleteCourrier = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la suppression", err });
   }
 };
+
+exports.getCourriersPaginated = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const data = await courrierService.findAllPaginated(userId, page, limit);
+
+    // Ajout pdfUrl
+    const finalRows = data.rows.map(c => addPdfUrl(c, req));
+
+    res.json({
+      page: data.page,
+      limit: data.limit,
+      total: data.total,
+      totalPages: data.totalPages,
+      rows: finalRows
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur", err });
+  }
+};
+
+exports.getCourriersUserPaginated = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const data = await courrierService.findByUserPaginated(userId, page, limit);
+
+    const finalRows = data.rows.map(c => addPdfUrl(c, req));
+
+    res.json({
+      page: data.page,
+      limit: data.limit,
+      total: data.total,
+      totalPages: data.totalPages,
+      rows: finalRows
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur", err });
+  }
+};
+
