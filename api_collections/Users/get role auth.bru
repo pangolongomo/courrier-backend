@@ -1,0 +1,16 @@
+meta {
+  name: get role auth
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:4000/api/users/roles-authorized
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

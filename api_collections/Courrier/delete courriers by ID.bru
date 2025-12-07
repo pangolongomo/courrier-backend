@@ -1,0 +1,15 @@
+meta {
+  name: delete courriers by ID
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://localhost:4000/api/courriers/id
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

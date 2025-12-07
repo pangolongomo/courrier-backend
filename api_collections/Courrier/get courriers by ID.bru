@@ -1,0 +1,16 @@
+meta {
+  name: get courriers by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:4000/api/courriers/0da3f562-e3af-461e-be36-9c484b64bf18
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

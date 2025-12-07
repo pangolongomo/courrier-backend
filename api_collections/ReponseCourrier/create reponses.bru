@@ -1,0 +1,21 @@
+meta {
+  name: create reponses
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:4000/api/reponses
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  date_signature: 
+  fichier_joint: @file()
+  courrierId: 
+}
+
+settings {
+  encodeUrl: true
+}

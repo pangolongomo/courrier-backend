@@ -1,0 +1,16 @@
+meta {
+  name: get courriers connected
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:4000/api/courriers/my
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

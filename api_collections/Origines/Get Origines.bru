@@ -1,0 +1,16 @@
+meta {
+  name: Get Origines
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:4000/api/origines
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

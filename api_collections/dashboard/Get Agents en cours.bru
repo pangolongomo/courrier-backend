@@ -1,0 +1,16 @@
+meta {
+  name: Get Agents en cours
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:4000/api/dashboard/agents-en-cours
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
