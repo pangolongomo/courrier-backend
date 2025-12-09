@@ -29,5 +29,7 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{secrets.DOCKER_PASSWORD}}
       - name: Pull image from docker hub
         run: docker pull artisg/mail-manager-api:latest
+      - name: Stop and remove existing container
+        run: docker stop mail-manager-api-container || true && docker rm mail-manager-api-container || true
       - name: Run docker Container
         run: docker run -d -p 4000:4000 --name mail-manager-api-container -e DATABASE_URL='${{secrets.DATABASE_URL}}' -e JWT_SECRET='${{secrets.JWT_SECRET}}' -e AWS_REGION='${{secrets.AWS_REGION}}' -e AWS_ACCESS_KEY='${{secrets.AWS_ACCESS_KEY}}' -e AWS_SECRET_KEY='${{secrets.AWS_SECRET_KEY}}' -e AWS_S3_BUCKET='${{secrets.AWS_S3_BUCKET}}' artisg/mail-manager-api
