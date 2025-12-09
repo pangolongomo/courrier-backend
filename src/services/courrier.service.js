@@ -261,9 +261,16 @@ exports.update = async (id, data) => {
 
 exports.remove = async (id) => {
   try {
-    await prisma.courrier.delete({ where: { id } });
+    await prisma.$transaction([
+      prisma.notification.deleteMany({ where: { courrierId: id } }),
+      prisma.annotation.deleteMany({ where: { courrierId: id } }),
+      prisma.reponseCourrier.deleteMany({ where: { courrierId: id } }),
+      prisma.courrierLu.deleteMany({ where: { courrierId: id } }),
+      prisma.courrier.delete({ where: { id } }),
+    ]);
     return true;
   } catch (err) {
+    console.error("Error in remove:", err);
     return false;
   }
 };

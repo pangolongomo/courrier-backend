@@ -102,12 +102,8 @@ exports.deleteCourrier = async (req, res) => {
     if (!courrier)
       return res.status(404).json({ message: "Courrier introuvable" });
 
-    const data = await deleteObject(courrier.s3_key);
-
-    if (data.status !== 204) {
-      return res
-        .status(500)
-        .json({ message: "Erreur lors de la suppression sjsjsj" });
+    if (courrier.s3_key) {
+      await deleteObject(courrier.s3_key);
     }
 
     await courrierService.remove(req.params.id);
