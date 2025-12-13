@@ -35,6 +35,16 @@
  *         in: query
  *         required: false
  *         schema: { type: integer, default: 10 }
+ *       - name: typeId
+ *         in: query
+ *         required: false
+ *         schema: { type: string, format: uuid }
+ *         description: Filtrer par type de courrier
+ *       - name: search
+ *         in: query
+ *         required: false
+ *         schema: { type: string }
+ *         description: Recherche dans objet et origine (insensible aux accents)
  *     responses:
  *       200:
  *         description: Liste paginée
@@ -121,6 +131,16 @@
  *         schema:
  *           type: integer
  *           default: 10
+ *       - name: typeId
+ *         in: query
+ *         required: false
+ *         schema: { type: string, format: uuid }
+ *         description: Filtrer par type de courrier
+ *       - name: search
+ *         in: query
+ *         required: false
+ *         schema: { type: string }
+ *         description: Recherche dans objet et origine (insensible aux accents)
  *     responses:
  *       200:
  *         description: Liste paginée des courriers de l'utilisateur
