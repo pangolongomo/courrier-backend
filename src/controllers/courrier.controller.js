@@ -119,8 +119,10 @@ exports.getCourriersPaginated = async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const typeId = req.query.typeId;
+    const search = req.query.search;
 
-    const data = await courrierService.findAllPaginated(userId, page, limit);
+    const data = await courrierService.findAllPaginated(userId, page, limit, { typeId, search });
 
     // Ajout pdfUrl
     const finalRows = data.rows.map(c => addPdfUrl(c, req));

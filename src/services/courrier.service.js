@@ -275,14 +275,30 @@ exports.remove = async (id) => {
   }
 };
 
-exports.findAllPaginated = async (userId, page = 1, limit = 10) => {
+exports.findAllPaginated = async (userId, page = 1, limit = 10, filters = {}) => {
   const skip = (page - 1) * limit;
+  const { typeId, search } = filters;
 
-  // Total
-  const total = await prisma.courrier.count();
+  // Build where clause
+  const where = {};
+  
+  if (typeId) {
+    where.typeId = typeId;
+  }
+  
+  if (search) {
+    where.OR = [
+      { objet: { contains: search, mode: 'insensitive' } },
+      { origine: { libelle: { contains: search, mode: 'insensitive' } } }
+    ];
+  }
+
+  // Total with filters
+  const total = await prisma.courrier.count({ where });
 
   // Données paginées
   const courriers = await prisma.courrier.findMany({
+    where,
     skip,
     take: limit,
     include: {
