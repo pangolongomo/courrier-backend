@@ -122,19 +122,21 @@ exports.getCourriersPaginated = async (req, res) => {
     const typeId = req.query.typeId;
     const search = req.query.search;
 
-    const data = await courrierService.findAllPaginated(userId, page, limit, { typeId, search });
+    const data = await courrierService.findAllPaginated(userId, page, limit, {
+      typeId,
+      search,
+    });
 
     // Ajout pdfUrl
-    const finalRows = data.rows.map(c => addPdfUrl(c, req));
+    const finalRows = data.rows.map((c) => addPdfUrl(c, req));
 
     res.json({
       page: data.page,
       limit: data.limit,
       total: data.total,
       totalPages: data.totalPages,
-      rows: finalRows
+      rows: finalRows,
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Erreur serveur", err });
@@ -146,21 +148,27 @@ exports.getCourriersUserPaginated = async (req, res) => {
     const userId = req.user.userId;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const typeId = req.query.typeId;
+    const search = req.query.search;
 
-    const data = await courrierService.findByUserPaginated(userId, page, limit);
+    const data = await courrierService.findByUserPaginated(
+      userId,
+      page,
+      limit,
+      { typeId, search }
+    );
 
-    const finalRows = data.rows.map(c => addPdfUrl(c, req));
+    const finalRows = data.rows.map((c) => addPdfUrl(c, req));
 
     res.json({
       page: data.page,
       limit: data.limit,
       total: data.total,
       totalPages: data.totalPages,
-      rows: finalRows
+      rows: finalRows,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Erreur serveur", err });
   }
 };
-

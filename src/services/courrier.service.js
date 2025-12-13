@@ -275,21 +275,26 @@ exports.remove = async (id) => {
   }
 };
 
-exports.findAllPaginated = async (userId, page = 1, limit = 10, filters = {}) => {
+exports.findAllPaginated = async (
+  userId,
+  page = 1,
+  limit = 10,
+  filters = {}
+) => {
   const skip = (page - 1) * limit;
   const { typeId, search } = filters;
 
   // Build where clause
   const where = {};
-  
+
   if (typeId) {
     where.typeId = typeId;
   }
-  
+
   if (search) {
     where.OR = [
-      { objet: { contains: search, mode: 'insensitive' } },
-      { origine: { libelle: { contains: search, mode: 'insensitive' } } }
+      { objet: { contains: search, mode: "insensitive" } },
+      { origine: { libelle: { contains: search, mode: "insensitive" } } },
     ];
   }
 
@@ -334,17 +339,37 @@ exports.findAllPaginated = async (userId, page = 1, limit = 10, filters = {}) =>
   };
 };
 
-exports.findByUserPaginated = async (userId, page = 1, limit = 10) => {
+exports.findByUserPaginated = async (
+  userId,
+  page = 1,
+  limit = 10,
+  filters = {}
+) => {
   const skip = (page - 1) * limit;
+  const { typeId, search } = filters;
 
-  // TOTAL des courriers destinés à cet user
-  const total = await prisma.courrier.count({
-    where: { destinataire: { id: userId } },
-  });
+  // Build where clause
+  const where = {
+    destinataire: { id: userId },
+  };
+
+  if (typeId) {
+    where.typeId = typeId;
+  }
+
+  if (search) {
+    where.OR = [
+      { objet: { contains: search, mode: "insensitive" } },
+      { origine: { libelle: { contains: search, mode: "insensitive" } } },
+    ];
+  }
+
+  // TOTAL des courriers destinés à cet user avec filtres
+  const total = await prisma.courrier.count({ where });
 
   // DONNÉES paginées
   const courriers = await prisma.courrier.findMany({
-    where: { destinataire: { id: userId } },
+    where,
     skip,
     take: limit,
     include: {
