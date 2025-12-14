@@ -80,6 +80,9 @@
  *                 type: string
  *               roleLibelle:
  *                 type: string
+ *               titre:
+ *                 type: string
+ *                 description: "Titre/spécialité (ex: Conseiller juridique)"
  *     responses:
  *       201:
  *         description: Utilisateur créé
@@ -114,6 +117,9 @@
  *               email: { type: string }
  *               password: { type: string }
  *               roleLibelle: { type: string }
+ *               titre:
+ *                 type: string
+ *                 description: "Titre/spécialité"
  *     responses:
  *       200:
  *         description: Utilisateur mis à jour
@@ -149,7 +155,11 @@ const authMiddleware = require("../middlewares/auth.middleware");
 const router = express.Router();
 
 router.get("/", authMiddleware, userController.getUsers);
-router.get("/roles-authorized", authMiddleware, userController.getUsersWithRoles);
+router.get(
+  "/roles-authorized",
+  authMiddleware,
+  userController.getUsersWithRoles
+);
 router.get("/:id", authMiddleware, userController.getUserById);
 router.post("/", authMiddleware, userController.createUser);
 router.put("/:id", authMiddleware, userController.updateUser);

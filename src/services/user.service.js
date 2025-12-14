@@ -10,6 +10,7 @@ exports.findAllUsers = async () => {
       prenom: true,
       telephone: true,
       email: true,
+      titre: true,
       role: {
         select: { libelle: true }
       },
@@ -28,6 +29,7 @@ exports.findUserById = async (id) => {
       prenom: true,
       telephone: true,
       email: true,
+      titre: true,
       role: {
         select: { libelle: true, id: true }
       },
@@ -50,6 +52,7 @@ exports.findUsersByRoles = async (roles = ["ministre", "dircab", "conseiller", "
       prenom: true,
       telephone: true,
       email: true,
+      titre: true,
       role: { select: { libelle: true } },
       createdAt: true,
       updatedAt: true
@@ -87,10 +90,11 @@ exports.createNewUser = async (data) => {
       telephone: data.telephone || null,
       email: data.email,
       password: hashed,
+      titre: data.titre || null,
       role: { connect: { id: roleId } }
     },
     select: {
-      id: true, nom: true, prenom: true, email: true,
+      id: true, nom: true, prenom: true, email: true, titre: true,
       role: { select: { libelle: true } },
       createdAt: true
     }
@@ -131,7 +135,7 @@ exports.updateUserById = async (id, data) => {
     const user = await prisma.user.update({
       where: { id },
       data: updateData,
-      select: { id: true, nom: true, prenom: true, email: true, role: { select: { libelle: true } } }
+      select: { id: true, nom: true, prenom: true, email: true, titre: true, role: { select: { libelle: true } } }
     });
     return user;
   } catch (err) {

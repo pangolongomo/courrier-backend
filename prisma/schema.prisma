@@ -29,6 +29,7 @@ model User {
   telephone String?
   email     String  @unique
   password  String
+  titre     String? // Titre/spécialité (ex: "Conseiller juridique", "Conseiller en sécurité")
 
   roleId String
   role   Role   @relation(fields: [roleId], references: [id])
