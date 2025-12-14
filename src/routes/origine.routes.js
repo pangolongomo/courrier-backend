@@ -72,10 +72,47 @@
  *         description: L'origine existe déjà
  */
 
+/**
+ * @swagger
+ * /origines/{id}:
+ *   put:
+ *     summary: Mettre à jour une origine
+ *     tags: [Origines]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - libelle
+ *             properties:
+ *               libelle:
+ *                 type: string
+ *                 example: "Nouveau libellé"
+ *     responses:
+ *       200:
+ *         description: Origine mise à jour avec succès
+ *       400:
+ *         description: "Mauvaise requête, libelle vide"
+ *       404:
+ *         description: Origine non trouvée
+ *       409:
+ *         description: L'origine existe déjà
+ */
+
 const router = require("express").Router();
 const origineController = require("../controllers/origine.controller");
 
 router.get("/", origineController.getOrigines);
 router.post("/", origineController.createOrigine);
+router.put("/:id", origineController.updateOrigine);
 
 module.exports = router;
