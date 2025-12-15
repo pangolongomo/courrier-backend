@@ -40,6 +40,7 @@ model User {
   reponses          ReponseCourrier[] @relation("Responder")
   annotations       Annotation[]      @relation("Annotateur")
   courriersLu       CourrierLu[]
+  archives          ArchiveCourrier[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,6 +87,8 @@ model Courrier {
   date_signature  DateTime?
   fichier_joint   String?
   s3_key          String?
+
+  archive ArchiveCourrier?
 
   origineId String?
   origine   Origine? @relation(fields: [origineId], references: [id])
@@ -167,3 +170,23 @@ model Notification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+enum ArchiveCategorie {
+  TRAITE
+  CLASSE_SANS_SUITE
+}
+
+model ArchiveCourrier {
+  id        String           @id @default(uuid())
+  categorie ArchiveCategorie
+  commentaire String?
+
+  courrierId String   @unique
+  courrier   Courrier @relation(fields: [courrierId], references: [id])
+
+  archivedById String
+  archivedBy   User   @relation(fields: [archivedById], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
