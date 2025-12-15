@@ -408,19 +408,21 @@ exports.validateCourrier = async (courrierId, userId, commentaire) => {
   return prisma.$transaction(async (tx) => {
     const courrier = await tx.courrier.findUnique({
       where: { id: courrierId },
-      include: { archive: true },
     });
 
     if (!courrier) throw new Error("Courrier introuvable");
-    if (courrier.archive)
-      throw new Error("Ce courrier est déjà archivé");
+
+    const existingArchive = await tx.archiveCourrier.findUnique({
+      where: { courrierId },
+    });
+
+    if (existingArchive) throw new Error("Ce courrier est déjà traité");
 
     const statutValide = await tx.statutCourrier.findUnique({
       where: { libelle: "Validé" },
     });
 
-    if (!statutValide)
-      throw new Error("Statut 'Validé' introuvable");
+    if (!statutValide) throw new Error("Statut 'Validé' introuvable");
 
     await tx.courrier.update({
       where: { id: courrierId },
@@ -446,19 +448,21 @@ exports.rejectCourrier = async (courrierId, userId, commentaire) => {
   return prisma.$transaction(async (tx) => {
     const courrier = await tx.courrier.findUnique({
       where: { id: courrierId },
-      include: { archive: true },
     });
 
     if (!courrier) throw new Error("Courrier introuvable");
-    if (courrier.archive)
-      throw new Error("Ce courrier est déjà archivé");
+
+    const existingArchive = await tx.archiveCourrier.findUnique({
+      where: { courrierId },
+    });
+
+    if (existingArchive) throw new Error("Ce courrier est déjà traité");
 
     const statutRejete = await tx.statutCourrier.findUnique({
       where: { libelle: "Rejeté" },
     });
 
-    if (!statutRejete)
-      throw new Error("Statut 'Rejeté' introuvable");
+    if (!statutRejete) throw new Error("Statut 'Rejeté' introuvable");
 
     await tx.courrier.update({
       where: { id: courrierId },
@@ -479,4 +483,3 @@ exports.rejectCourrier = async (courrierId, userId, commentaire) => {
     return true;
   });
 };
-
