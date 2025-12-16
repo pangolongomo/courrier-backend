@@ -483,3 +483,24 @@ exports.rejectCourrier = async (courrierId, userId, commentaire) => {
     return true;
   });
 };
+exports.updatePriority = async (courrierId, priorite) => {
+  try {
+    const updatedCourrier = await prisma.courrier.update({
+      where: { id: courrierId },
+      data: { priorite },
+      include: {
+        type: true,
+        creator: true,
+        origine: true,
+        destinataire: true,
+        statut: true,
+      },
+    });
+    return updatedCourrier;
+  } catch (err) {
+    if (err.code === "P2025") {
+      return null;
+    }
+    throw err;
+  }
+};

@@ -79,6 +79,13 @@ model Origine {
   courriers Courrier[]
 }
 
+enum PrioriteCourrier {
+  NORMAL
+  URGENT
+  TRES_URGENT
+  CONFIDENTIEL
+}
+
 model Courrier {
   id              String    @id @default(uuid())
   numero_courrier String    @unique
@@ -106,6 +113,8 @@ model Courrier {
 
   statutId String?
   statut   StatutCourrier? @relation(fields: [statutId], references: [id])
+
+  priorite PrioriteCourrier @default(NORMAL)
 
   reponses      ReponseCourrier[]
   annotations   Annotation[]

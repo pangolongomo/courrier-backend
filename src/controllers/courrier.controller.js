@@ -201,3 +201,24 @@ exports.rejectCourrier = async (req, res) => {
   }
 };
 
+exports.updateCourrierPriority = async (req, res) => {
+  try {
+    const { priorite } = req.body;
+    const validPriorities = ['NORMAL', 'URGENT', 'TRES_URGENT', 'CONFIDENTIEL'];
+    
+    if (!validPriorities.includes(priorite)) {
+      return res.status(400).json({ message: "Priorité invalide" });
+    }
+
+    const updatedCourrier = await courrierService.updatePriority(req.params.id, priorite);
+    
+    if (!updatedCourrier) {
+      return res.status(404).json({ message: "Courrier introuvable" });
+    }
+
+    res.json(addPdfUrl(updatedCourrier));
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+

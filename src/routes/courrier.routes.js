@@ -268,6 +268,42 @@
 
 /**
  * @openapi
+ * /courriers/{id}/priority:
+ *   patch:
+ *     tags: [Courrier]
+ *     summary: Modifier la priorité d'un courrier
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [priorite]
+ *             properties:
+ *               priorite:
+ *                 type: string
+ *                 enum: [NORMAL, URGENT, TRES_URGENT, CONFIDENTIEL]
+ *                 description: Nouvelle priorité du courrier
+ *     responses:
+ *       200:
+ *         description: Priorité mise à jour avec succès
+ *       400:
+ *         description: Priorité invalide
+ *       404:
+ *         description: Courrier introuvable
+ */
+
+/**
+ * @openapi
  * /courriers/{id}/reject:
  *   post:
  *     tags: [Courrier]
@@ -372,6 +408,7 @@ router.post("/", upload.single("fichier_joint"), courrierController.createCourri
 
 router.post("/:id/validate", courrierController.validateCourrier);
 router.post("/:id/reject", courrierController.rejectCourrier);
+router.patch("/:id/priority", courrierController.updateCourrierPriority);
 
 
 router.put("/:id", upload.single("fichier_joint"), courrierController.updateCourrier);
