@@ -10,6 +10,8 @@ const annotationRoutes = require("./annotation.routes");
 const origineRoutes = require("./origine.routes");
 const courrierLuRoutes = require("./courrierLu.routes");
 const dashboardRoutes = require("./dashboard.routes");
+const archiveRoutes = require("./archive.routes");
+
 
 const router = Router();
 
@@ -24,5 +26,6 @@ router.use("/annotations", annotationRoutes);
 router.use("/origines", origineRoutes);
 router.use("/courrier-lu", courrierLuRoutes);
 router.use("/dashboard", dashboardRoutes);
+router.use("/archives", archiveRoutes);
 
 module.exports = router;
