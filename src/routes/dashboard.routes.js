@@ -170,6 +170,37 @@
  *                   example: 13
  */
 
+/**
+ * @openapi
+ * /dashboard/destinataires/traites-non-traites:
+ *   get:
+ *     tags: [Dashboard]
+ *     summary: Totaux des courriers traités et non traités par destinataire
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Statistiques par destinataire
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   nom:
+ *                     type: string
+ *                   prenom:
+ *                     type: string
+ *                   totalTraites:
+ *                     type: integer
+ *                   totalNonTraites:
+ *                     type: integer
+ */
+
+
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/auth.middleware");
