@@ -117,7 +117,7 @@
  *                       properties:
  *                         id: { type: string }
  *                         fichier_joint: { type: string }
-*/
+ */
 
 /**
  * @openapi
@@ -170,8 +170,6 @@
  *                   example: 13
  */
 
-
-
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/auth.middleware");
@@ -190,6 +188,8 @@ router.get("/totaux-globaux", dashboardController.getGlobalCourrierTotals);
 // Totaux globaux des courriers par statut
 router.get("/statuts-globaux", dashboardController.getGlobalCourrierStatuts);
 
+// Courriers traités / non traités par destinataire
+router.get("/destinataires/traites-non-traites", dashboardController.getCourrierTraiteParDestinataire);
 
 // Dossiers en cours pour un agent spécifique
 router.get("/agents/:agentId/dossiers", dashboardController.getDossiersAgent);
