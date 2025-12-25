@@ -159,6 +159,10 @@ router.get("/agents-en-cours", dashboardController.getAgentsEnCours);
 
 router.get("/totaux-globaux", dashboardController.getGlobalCourrierTotals);
 
+// Totaux globaux des courriers par statut
+router.get("/statuts-globaux", dashboardController.getGlobalCourrierStatuts);
+
+
 // Dossiers en cours pour un agent spécifique
 router.get("/agents/:agentId/dossiers", dashboardController.getDossiersAgent);
 
