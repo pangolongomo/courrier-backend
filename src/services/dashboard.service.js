@@ -173,6 +173,7 @@ exports.getCourrierTraiteParDestinataire = async () => {
       id: user.id,
       nom: user.nom,
       prenom: user.prenom,
+      titre: user.titre,
       totalTraites,
       totalNonTraites
     };
