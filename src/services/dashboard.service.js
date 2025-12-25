@@ -135,3 +135,45 @@ exports.getGlobalCourrierStatuts = async () => {
   };
 };
 
+exports.getCourrierTraiteParDestinataire = async () => {
+  const users = await prisma.user.findMany({
+    where: {
+      courriersDestines: {
+        some: {} 
+      }
+    },
+    select: {
+      id: true,
+      nom: true,
+      prenom: true,
+      courriersDestines: {
+        select: {
+          statut: {
+            select: { libelle: true }
+          }
+        }
+      }
+    }
+  });
+
+  return users.map((user) => {
+    let totalTraites = 0;
+    let totalNonTraites = 0;
+
+    user.courriersDestines.forEach((courrier) => {
+      if (["Validé", "Rejeté"].includes(courrier.statut?.libelle)) {
+        totalTraites++;
+      } else if (courrier.statut?.libelle === "En cours de traitement") {
+        totalNonTraites++;
+      }
+    });
+
+    return {
+      id: user.id,
+      nom: user.nom,
+      prenom: user.prenom,
+      totalTraites,
+      totalNonTraites
+    };
+  });
+};
