@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:4000/api",
+        url: "http://3.210.143.153/api",
       },
     ],
   },
