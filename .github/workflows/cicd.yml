@@ -1,9 +1,14 @@
-name: Doploy Node Application
+name: Deploy Node Application
 
 on:
   push:
     branches:
       - main
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  REPOSITORY: mail-manager-api
 
 jobs:
   build:
@@ -12,24 +17,44 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Login to docker hub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{secrets.DOCKER_PASSWORD}}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEVOPS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_DEVOPS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build Docker Image
-        run: docker build -t artisg/mail-manager-api .
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Publish Image to docker hub
-        run: docker push artisg/mail-manager-api:latest
+      - name: Build and push Docker image
+        env:
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
 
   deploy:
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Login to docker hub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{secrets.DOCKER_PASSWORD}}
-      - name: Pull image from docker hub
-        run: docker pull artisg/mail-manager-api:latest
-      - name: Stop and remove existing container
-        run: docker stop mail-manager-api-container || true && docker rm mail-manager-api-container || true
-      - name: Run docker Container
-        run: docker run -d -p 4000:4000 --name mail-manager-api-container -e DATABASE_URL='${{secrets.DATABASE_URL}}' -e JWT_SECRET='${{secrets.JWT_SECRET}}' -e AWS_REGION='${{secrets.AWS_REGION}}' -e AWS_ACCESS_KEY='${{secrets.AWS_ACCESS_KEY}}' -e AWS_SECRET_KEY='${{secrets.AWS_SECRET_KEY}}' -e AWS_S3_BUCKET='${{secrets.AWS_S3_BUCKET}}' artisg/mail-manager-api
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEVOPS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_DEVOPS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Deploy container
+        env:
+          IMAGE_TAG: latest
+        run: |
+          docker pull $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker stop mail-manager-api-container || true
+          docker rm mail-manager-api-container || true
+          docker run -d -p 3001:4000 --name mail-manager-api-container -e DATABASE_URL='${{secrets.DATABASE_URL}}' -e JWT_SECRET='${{secrets.JWT_SECRET}}' -e AWS_REGION='${{secrets.AWS_REGION}}' -e AWS_ACCESS_KEY='${{secrets.AWS_ACCESS_KEY}}' -e AWS_SECRET_KEY='${{secrets.AWS_SECRET_KEY}}' -e AWS_S3_BUCKET='${{secrets.AWS_S3_BUCKET}}' $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
