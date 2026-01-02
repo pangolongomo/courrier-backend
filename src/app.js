@@ -16,5 +16,8 @@ app.use("/api", routes);
 setupSwagger(app);
 
 app.get("/", (req, res) => res.json({ ok: true, service: "courrier-backend" }));
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
 module.exports = app;
