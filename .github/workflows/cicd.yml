@@ -77,10 +77,17 @@ jobs:
           docker stop mail-manager-api-new || true
           docker rm mail-manager-api-new || true
           
+          # Force kill any process using the new port
+          sudo fuser -k $NEW_PORT/tcp || true
+          sleep 2
+          
+          # Double check and force cleanup if port still in use
           if lsof -iTCP:$NEW_PORT -sTCP:LISTEN >/dev/null 2>&1; then
-            echo "Port $NEW_PORT is already in use. Stopping old container first..."
+            echo "Port $NEW_PORT is still in use. Force cleaning..."
             docker stop mail-manager-api-container || true
             docker rm mail-manager-api-container || true
+            sudo fuser -k $NEW_PORT/tcp || true
+            sleep 3
           fi
 
           # Start new container
