@@ -74,6 +74,9 @@ jobs:
           echo "Deploying NEW container on port: $NEW_PORT"
 
           # 🔐 GUARANTEE NEW_PORT IS FREE
+          docker stop mail-manager-api-new || true
+          docker rm mail-manager-api-new || true
+          
           if lsof -iTCP:$NEW_PORT -sTCP:LISTEN >/dev/null 2>&1; then
             echo "Port $NEW_PORT is already in use. Stopping old container first..."
             docker stop mail-manager-api-container || true
