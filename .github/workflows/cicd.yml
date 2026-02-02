@@ -96,6 +96,7 @@ jobs:
             -p $NEW_PORT:4000 \
             --memory="600m" \
             --cpus="0.75" \
+            -e NODE_ENV=production \
             -e DATABASE_URL='${{ secrets.DATABASE_URL }}' \
             -e JWT_SECRET='${{ secrets.JWT_SECRET }}' \
             -e AWS_REGION='${{ secrets.AWS_REGION }}' \
