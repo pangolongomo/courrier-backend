@@ -160,7 +160,16 @@ exports.create = async ({
         destinataire: { connect: { id: destUserId } },
         statut: { connect: { id: statutInitial.id } },
       },
-      include: { origine: true },
+      include: {
+        type: true,
+        creator: true,
+        reponses: true,
+        origine: true,
+        destinataire: true,
+        statut: true,
+        annotations: { include: { auteur: true }, orderBy: { createdAt: "desc" } },
+        courriersLu: true,
+      },
     });
 
     await prisma.notification.create({

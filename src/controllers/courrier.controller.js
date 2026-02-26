@@ -97,7 +97,7 @@ exports.createCourrier = async (req, res) => {
       creatorId: req.user.userId,
     });
 
-    res.status(201).json(data);
+    res.status(201).json({ ...(await addPdfUrl(data)), estLu: false });
   } catch (err) {
     res.status(400).json({ message: "Erreur lors de la création", err });
   }
@@ -114,10 +114,19 @@ exports.updateCourrier = async (req, res) => {
 
     const updateData = { ...req.body };
 
-    if (req.file) {
-      const result = await putObject(req.file.buffer, existing.s3_key);
+    // Handle file update: pre-uploaded or direct upload
+    if (req.body.s3_key) {
+      // Pre-uploaded file
+      updateData.s3_key = req.body.s3_key;
+      updateData.nom_fichier = req.body.nom_fichier;
+    } else if (req.file) {
+      // Direct file upload
+      const fileName = generateFileName(req.file.originalname);
+      const result = await putObject(req.file.buffer, fileName);
       updateData.s3_key = result?.key;
+      updateData.nom_fichier = req.file.originalname;
     }
+    // If neither, keep existing file (no file change)
 
     const data = await courrierService.update(req.params.id, updateData);
     res.json(data);

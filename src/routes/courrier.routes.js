@@ -228,6 +228,7 @@
  *                 nom_fichier: { type: string }
  *                 url: { type: string }
  *       400: { description: Erreur validation }
+ */
 
 /**
  * @openapi
