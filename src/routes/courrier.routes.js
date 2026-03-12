@@ -436,6 +436,8 @@ const upload = require("../middlewares/upload.middleware");
 
 const router = express.Router();
 
+router.get("/public/:id/accuse", courrierController.getPublicAccuseById);
+
 router.use(authMiddleware);
 
 router.get("/", courrierController.getCourriers);

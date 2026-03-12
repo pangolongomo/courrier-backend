@@ -54,6 +54,29 @@ exports.findById = async (id, userId) => {
   };
 };
 
+exports.findPublicAccuseById = async (id) => {
+  return prisma.courrier.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      numero_courrier: true,
+      objet: true,
+      date_signature: true,
+      createdAt: true,
+      type: {
+        select: {
+          libelle: true,
+        },
+      },
+      origine: {
+        select: {
+          libelle: true,
+        },
+      },
+    },
+  });
+};
+
 exports.findByUser = async (userId) => {
   const courriers = await prisma.courrier.findMany({
     where: { destinataire: { id: userId } },

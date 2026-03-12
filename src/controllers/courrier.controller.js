@@ -38,6 +38,22 @@ exports.getCourrierById = async (req, res) => {
   }
 };
 
+exports.getPublicAccuseById = async (req, res) => {
+  try {
+    const data = await courrierService.findPublicAccuseById(req.params.id);
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ message: "Accusé de réception introuvable" });
+    }
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", err });
+  }
+};
+
 exports.getCourriersUser = async (req, res) => {
   try {
     const userId = req.user.userId;
