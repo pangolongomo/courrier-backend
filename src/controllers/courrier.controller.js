@@ -4,23 +4,45 @@ const { deleteObject } = require("../utils/s3/deleteObject");
 const { generateFileName } = require("../utils/fileNaming");
 
 const { getSignedUrl } = require("../utils/s3/getObject");
+const RECEPTION_PDF_ACCESS_WINDOW_MS = 24 * 60 * 60 * 1000;
 
-const addPdfUrl = async (courrier) => {
+const canAccessPdf = (courrier, user) => {
+  if (!courrier?.s3_key) return false;
+  if (!user) return false;
+
+  if (["ministre", "dircab", "conseiller", "secab"].includes(user.role)) {
+    return true;
+  }
+
+  if (user.role === "receptionniste") {
+    const isCreator = courrier.creatorId === user.userId;
+    const isWithinAllowedWindow =
+      Date.now() - new Date(courrier.createdAt).getTime() <=
+      RECEPTION_PDF_ACCESS_WINDOW_MS;
+
+    return isCreator && isWithinAllowedWindow;
+  }
+
+  return false;
+};
+
+const addPdfUrl = async (courrier, user = null) => {
   const { s3_key, ...courrierData } = courrier;
+  const canViewPdf = canAccessPdf(courrier, user);
 
-  if (!s3_key) {
-    return { ...courrierData, pdfUrl: null };
+  if (!s3_key || !canViewPdf) {
+    return { ...courrierData, pdfUrl: null, canViewPdf };
   }
 
   const pdfUrl = await getSignedUrl(s3_key, 300); // 5 min
-  return { ...courrierData, pdfUrl };
+  return { ...courrierData, pdfUrl, canViewPdf };
 };
 
 exports.getCourriers = async (req, res) => {
   try {
     const userId = req.user.userId;
     const data = await courrierService.findAll(userId);
-    const result = await Promise.all(data.map((c) => addPdfUrl(c)));
+    const result = await Promise.all(data.map((c) => addPdfUrl(c, req.user)));
     res.json(result);
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", err });
@@ -32,7 +54,7 @@ exports.getCourrierById = async (req, res) => {
     const userId = req.user.userId;
     const data = await courrierService.findById(req.params.id, userId);
     if (!data) return res.status(404).json({ message: "Courrier introuvable" });
-    res.json(await addPdfUrl(data));
+    res.json(await addPdfUrl(data, req.user));
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", err });
   }
@@ -58,7 +80,7 @@ exports.getCourriersUser = async (req, res) => {
   try {
     const userId = req.user.userId;
     const data = await courrierService.findByUser(userId);
-    const result = await Promise.all(data.map((c) => addPdfUrl(c)));
+    const result = await Promise.all(data.map((c) => addPdfUrl(c, req.user)));
     res.json(result);
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", err });
@@ -113,7 +135,7 @@ exports.createCourrier = async (req, res) => {
       creatorId: req.user.userId,
     });
 
-    res.status(201).json({ ...(await addPdfUrl(data)), estLu: false });
+    res.status(201).json({ ...(await addPdfUrl(data, req.user)), estLu: false });
   } catch (err) {
     res.status(400).json({ message: "Erreur lors de la création", err });
   }
@@ -186,7 +208,9 @@ exports.getCourriersPaginated = async (req, res) => {
     });
 
     // Ajout pdfUrl
-    const finalRows = await Promise.all(data.rows.map((c) => addPdfUrl(c)));
+    const finalRows = await Promise.all(
+      data.rows.map((c) => addPdfUrl(c, req.user)),
+    );
 
     res.json({
       page: data.page,
@@ -216,7 +240,9 @@ exports.getCourriersUserPaginated = async (req, res) => {
       { typeId, search },
     );
 
-    const finalRows = await Promise.all(data.rows.map((c) => addPdfUrl(c)));
+    const finalRows = await Promise.all(
+      data.rows.map((c) => addPdfUrl(c, req.user)),
+    );
 
     res.json({
       page: data.page,
